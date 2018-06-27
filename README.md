@@ -10,3 +10,15 @@ coverage of the news I like including posts by my friends and family members.
 Plus, it should be smart about recommending the right articles so that it 
 won't overload me.
 
+The main use case is as follows:
+
+1. User downloads and starts eigennews server (run on localhost:5000)
+2. User accesses `localhost:5000/import` and import history from a browser
+3. After importing, user is returned to home screen and is served recommendations
+4. User can click on a recommendation, add it to a collection, subscribe to 
+a keyword or vote a recommendation down
+5. Depends on user's reaction, the system will update its model so that it
+only serves relevant content
+
+As of June 2018, only importing from Firefox and scraping from some news sources
+is implemented. 
