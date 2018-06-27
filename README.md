@@ -12,8 +12,9 @@ won't overload me.
 
 The main use case is as follows:
 
-1. User downloads and starts eigennews server (run on localhost:5000)
-2. User accesses `localhost:5000/import` and import history from a browser
+1. User downloads and starts eigennews server (runs on [localhost:5000](localhost:5000))
+2. User accesses [localhost:5000/import](localhost:5000/import) 
+and imports history from a browser
 3. After importing, user is returned to home screen and is served recommendations
 4. User can click on a recommendation, add it to a collection, subscribe to 
 a keyword or vote a recommendation down
