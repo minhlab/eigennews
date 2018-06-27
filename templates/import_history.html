@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    For Firefox 3 and above, please open Help menu &gt; Troubleshooting Information
+    and copy the content of Profile Folder below.  
+  
+    <form action="{{ url_for('import_history') }}" method="post" class="add-entry">
+      <dl>
+        <dt>Firefox profile folder:
+        <dd><input name="firefox_profile" rows="5" cols="40"></textarea>
+        <dd><input type="submit" value="Import">
+      </dl>
+    </form>
+
+  {% if request.method == 'POST' %}
+    Imported {{num_added}} entried.
+  {% endif %}    
+ 
+  {% else %}
+    You need to <a href="{{ url_for('login') }}">Log in</a> to import or 
+    show imported history.    
+  {% endif %}
+{% endblock %}
