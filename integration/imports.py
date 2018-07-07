@@ -3,7 +3,6 @@ from contextlib import closing
 import os
 from utils import dict_factory
 from db import visited_pages_table, import_sources_table
-import db
 
 
 def filter_pages(db_conn, pages):
@@ -21,7 +20,6 @@ def firefox(db_conn, firefox_profile_path):
     places_sqlite_path = os.path.join(firefox_profile_path, 'places.sqlite')
     with sqlite3.connect(places_sqlite_path) as ff_conn:
         ff_conn.row_factory = dict_factory
-        db.ensure_tables_exist(db_conn)
         with closing(ff_conn.cursor()) as c_inp, \
                 closing(db_conn.cursor()) as c_out:
             # import pages

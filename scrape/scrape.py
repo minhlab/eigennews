@@ -1,5 +1,3 @@
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
 from scrape.qa import scrape_stackoverflow_question
 from db import connect_db
 from db import visited_pages_table
@@ -10,6 +8,7 @@ from tqdm import tqdm
 from multiprocessing.dummy import Pool as ThreadPool
 from scrape.news import newspaper3k
 import re
+from utils import LazySoup
 
 
 
@@ -32,18 +31,6 @@ _scraping_funcs = [
 ]
 
 
-class LazySoup(object):
-    
-    def __init__(self, url):
-        self.url = url
-        
-    def __call__(self):
-        if not hasattr(self, 'soup'):
-            with closing(urlopen(self.url)) as page:
-                self.soup = BeautifulSoup(page, 'html.parser')
-        return self.soup
-    
-
 def extract_docs(url):
     try:
         soup_func = LazySoup(url)
@@ -57,13 +44,16 @@ def extract_docs(url):
 
 def scrape_all_visited_page():
     with connect_db() as conn, closing(conn.cursor()) as c:
-        c.execute(f'SELECT url from {visited_pages_table} WHERE content IS NULL')
+        c.execute(f'SELECT url from {visited_pages_table} WHERE scraped = 0')
         urls = [row['url'] for row in c.fetchall()]
         with ThreadPool(16) as thread_pool:  # use it instead of processes to be lightweight 
             # use iters from here on to avoid keeping too many documents in memory
             docs = thread_pool.imap_unordered(extract_docs, urls)
             docs = tqdm(docs, unit='URL', desc='Scraping', total=len(urls))
             docs = (doc for doc in docs if doc)
+            # only set scrape=1 for URLs that were successfully interpreted
+            # so that when we have a new way to scrape content, we can 
+            # retrospectively process old URLs
             c.executemany(f'''
                 UPDATE {visited_pages_table} 
                 SET content = ?, 
@@ -73,7 +63,7 @@ def scrape_all_visited_page():
                     summary = ?,
                     keywords = ?,
                     ignored = ?,
-                    processed = 1
+                    scraped = 1
                 WHERE url = ?''', 
                           ((doc.get('content', '').encode('utf-8'),
                             doc.get('publish_date'),
