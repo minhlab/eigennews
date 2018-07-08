@@ -1,6 +1,5 @@
-from urllib.request import urlopen
+from urllib.request import urlretrieve
 from bs4 import BeautifulSoup
-from contextlib import closing
 
 
 def dict_factory(cursor, row):
@@ -15,7 +14,9 @@ class LazySoup(object):
         
     def __call__(self):
         if not hasattr(self, 'soup'):
-            with closing(urlopen(self.url)) as page:
+            # use urlretrieve instead of urlopen to enable caching
+            fname, _ = urlretrieve(self.url)
+            with open(fname, 'rb') as page:
                 self.soup = BeautifulSoup(page, 'html.parser')
         return self.soup
     

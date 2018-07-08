@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from urllib.parse import urljoin
 import re
 from utils import LazySoup
-from urllib.error import URLError
+from urllib.error import URLError, HTTPError
 import sys
 from itertools import chain
 from collections import namedtuple
@@ -28,8 +28,7 @@ def _url_lengths(url):
     capturing the "listing-ness" of a page (the shorter an URL, the more likely
     it is a listing page). 
     '''
-    o = urlparse(url)
-    path_len = o.path.count('/')
+    path_len = url.count('/') + url.count('&') + url.count('?')
     word_len = len(re.findall(r'[\w\d]+', url))
     char_len = len(url)
     return (path_len, word_len, char_len)
@@ -64,7 +63,7 @@ def extract_sources(url):
         soup_func = LazySoup(url)
         srcs_iter = (func(url, soup_func) for func in _extract_funcs)
         return next(srcs_iter, None)
-    except URLError:
+    except (URLError, HTTPError):
         print(f'Error retrieving {url}', file=sys.stderr)
         return None
     

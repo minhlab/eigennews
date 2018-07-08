@@ -11,7 +11,6 @@ import re
 from utils import LazySoup
 
 
-
 with open('data/ignore.txt') as f:
     ignore_domains = f.readlines()
 
